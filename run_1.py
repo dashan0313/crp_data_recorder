@@ -9,10 +9,10 @@ from loguru import logger
 logger.add('run.log', rotation='1 week', retention='10 days')
 logger.info('Start')
 
-proxies = {
-    'http': 'http://127.0.0.1:10887',
-    'https': 'http://127.0.0.1:10887'
-}
+# proxies = {
+#     'http': 'http://127.0.0.1:10887',
+#     'https': 'http://127.0.0.1:10887'
+# }
 base_url = 'https://fapi.binance.com'
 require_url = {'openInterestHist': '/futures/data/openInterestHist',
                # "sumOpenInterest": "20403.12345678", // 持仓总数量
@@ -35,7 +35,7 @@ require_url = {'openInterestHist': '/futures/data/openInterestHist',
                # "sellVol": "248.5030", // 主动卖出量
                }
 
-recorder = BinanceRecorder(proxies, base_url, require_url)
+recorder = BinanceRecorder(None, base_url, require_url)
 
 period = '1h'
 save_path = 'data'

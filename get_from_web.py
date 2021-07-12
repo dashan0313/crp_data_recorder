@@ -1,6 +1,7 @@
 import requests
 import pandas as pd
 import datetime
+from datetime import timedelta, timezone
 import time
 
 
@@ -9,6 +10,7 @@ class BinanceRecorder:
         self.proxies = proxies
         self.base_url = base_url
         self.require_url = require_url
+        self.tz = timezone(timedelta(hours=8))
 
     def _get_data(self, query):
         result = pd.DataFrame()
@@ -28,20 +30,25 @@ class BinanceRecorder:
     def get_and_save(self, symbol, startTime, endTime, save_path, period='1h'):
         query = f'?symbol={symbol}&period={period}&startTime={startTime}&endTime={endTime}'
         result = self._get_data(query)
-        save_date = datetime.datetime.utcfromtimestamp(endTime / 1000).strftime('%Y-%m-%d')
+        save_date = datetime.datetime.utcfromtimestamp(endTime / 1000).replace(tzinfo=self.tz).strftime('%Y-%m-%d')
         result.to_csv(f"{save_path}/{symbol}/{save_date}.csv", index=False)
-        st = datetime.datetime.utcfromtimestamp(result.timestamp.iloc[0] / 1000).strftime('%Y-%m-%d %H:%M:%S')
-        et = datetime.datetime.utcfromtimestamp(result.timestamp.iloc[-1] / 1000).strftime('%Y-%m-%d %H:%M:%S')
+        st = (datetime.datetime.utcfromtimestamp(result.timestamp.iloc[0] / 1000) + timedelta(hours=8)).replace(
+            tzinfo=self.tz).strftime('%Y-%m-%d %H:%M:%S')
+        et = (datetime.datetime.utcfromtimestamp(result.timestamp.iloc[-1] / 1000) + timedelta(hours=8)).replace(
+            tzinfo=self.tz).strftime('%Y-%m-%d %H:%M:%S')
         return result.shape, st, et
 
     def init_get_and_save(self, symbol, limit, endTime, save_path, period='1h'):
         query = f'?symbol={symbol}&period={period}&limit={limit}&endTime={endTime}'
         result = self._get_data(query)
-        save_date = datetime.datetime.utcfromtimestamp(endTime / 1000).strftime('%Y-%m-%d')
+        save_date = datetime.datetime.utcfromtimestamp(endTime / 1000).replace(tzinfo=self.tz).strftime('%Y-%m-%d')
         result.to_csv(f"{save_path}/{symbol}/{save_date}.csv", index=False)
-        st = datetime.datetime.utcfromtimestamp(result.timestamp.iloc[0] / 1000).strftime('%Y-%m-%d %H:%M:%S')
-        et = datetime.datetime.utcfromtimestamp(result.timestamp.iloc[-1] / 1000).strftime('%Y-%m-%d %H:%M:%S')
+        st = (datetime.datetime.utcfromtimestamp(result.timestamp.iloc[0] / 1000) + timedelta(hours=8)).replace(
+            tzinfo=self.tz).strftime('%Y-%m-%d %H:%M:%S')
+        et = (datetime.datetime.utcfromtimestamp(result.timestamp.iloc[-1] / 1000) + timedelta(hours=8)).replace(
+            tzinfo=self.tz).strftime('%Y-%m-%d %H:%M:%S')
         return result.shape, st, et
+
 
 if __name__ == '__main__':
     proxies = {
